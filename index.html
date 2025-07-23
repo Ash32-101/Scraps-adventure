@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🏁 Horse Race Game</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1e1e1e;
+      color: white;
+      text-align: center;
+      padding-top: 30px;
+    }
+
+    .track {
+      position: relative;
+      width: 90%;
+      margin: 20px auto;
+      height: 100px;
+      border: 3px dashed #444;
+      background: #2b2b2b;
+      overflow: hidden;
+      border-radius: 15px;
+    }
+
+    .horse {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      top: 10px;
+      transition: left 0.1s ease-in-out;
+    }
+
+    .horse img {
+      width: 100%;
+    }
+
+    #startBtn {
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      background: limegreen;
+      border: none;
+      color: black;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: gold;
+    }
+
+    .bet-section {
+      margin-top: 20px;
+    }
+
+    .bet-section select, .bet-section button, .bet-section input {
+      padding: 8px;
+      margin: 5px;
+      font-size: 1rem;
+      border-radius: 5px;
+    }
+
+    #balance {
+      margin-top: 10px;
+      color: lightgreen;
+    }
+
+    .custom-horse-img {
+      margin-top: 10px;
+      color: #ccc;
+    }
+
+    .custom-horse-img input {
+      width: 60%;
+    }
+
+    .horse-name {
+      position: absolute;
+      top: -25px;
+      font-size: 1rem;
+      color: lightblue;
+      width: 100px;
+      text-align: center;
+    }
+
+    .name-inputs {
+      margin-top: 10px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🐎 Horse Racing Game</h1>
+
+  <div class="bet-section">
+    <label for="horseBet">Choose your horse:</label>
+    <select id="horseBet">
+      <option value="1">Horse 1</option>
+      <option value="2">Horse 2</option>
+      <option value="3">Horse 3</option>
+    </select>
+    <label for="betAmount">Bet amount:</label>
+    <input type="number" id="betAmount" value="10" min="1" max="100">
+    <button id="startBtn">Start Race</button>
+    <div id="balance">💰 Balance: $100</div>
+
+    <div class="custom-horse-img">
+      <label for="customImg">Custom horse image URL:</label>
+      <input type="text" id="customImg" placeholder="https://example.com/horse.png">
+      <button onclick="updateHorseImages()">Update Horse Image</button>
+    </div>
+
+    <div class="name-inputs">
+      <label>Horse Names:</label><br>
+      <input type="text" id="name1" placeholder="Horse 1 Name">
+      <input type="text" id="name2" placeholder="Horse 2 Name">
+      <input type="text" id="name3" placeholder="Horse 3 Name">
+      <button onclick="updateHorseNames()">Set Names</button>
+    </div>
+  </div>
+
+  <div class="track" id="track1">
+    <div class="horse-name" id="label1">Horse 1</div>
+    <div class="horse" id="horse1"><img src="https://thegraphicsfairy.com/wp-content/uploads/2022/02/Brown-Horse-Clipart-GraphicsFairy.jpg" alt="Horse 1"></div>
+  </div>
+  <div class="track" id="track2">
+    <div class="horse-name" id="label2">Horse 2</div>
+    <div class="horse" id="horse2"><img src="https://i.pinimg.com/236x/db/3d/0e/db3d0e461e9450c940de3cc6e1ea89e9.jpg" alt="Horse 2"></div>
+  </div>
+  <div class="track" id="track3">
+    <div class="horse-name" id="label3">Horse 3</div>
+    <div class="horse" id="horse3"><img src="https://i.pinimg.com/736x/9b/74/bd/9b74bdf76e8cb8c2e10c0b74687f49b7.jpg" alt="Horse 3"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    const horses = [
+      document.getElementById('horse1'),
+      document.getElementById('horse2'),
+      document.getElementById('horse3')
+    ];
+
+    const nameLabels = [
+      document.getElementById('label1'),
+      document.getElementById('label2'),
+      document.getElementById('label3')
+    ];
+
+    const trackWidth = document.getElementById('track1').offsetWidth;
+    const finishLine = trackWidth - 90;
+    const result = document.getElementById('result');
+    const startBtn = document.getElementById('startBtn');
+    const horseBet = document.getElementById('horseBet');
+    const betAmount = document.getElementById('betAmount');
+    const balanceDisplay = document.getElementById('balance');
+    const customImg = document.getElementById('customImg');
+
+    let balance = 100;
+
+    function resetRace() {
+      horses.forEach(h => h.style.left = '0px');
+      result.textContent = '';
+    }
+
+    function updateBalanceDisplay() {
+      balanceDisplay.textContent = `💰 Balance: $${balance}`;
+    }
+
+    function updateHorseImages() {
+      const url = customImg.value.trim();
+      if (url && url.startsWith('http')) {
+        horses.forEach(h => h.querySelector('img').src = url);
+      } else {
+        alert("Please enter a valid image URL.");
+      }
+    }
+
+    function updateHorseNames() {
+      const name1 = document.getElementById('name1').value || "Horse 1";
+      const name2 = document.getElementById('name2').value || "Horse 2";
+      const name3 = document.getElementById('name3').value || "Horse 3";
+      nameLabels[0].textContent = name1;
+      nameLabels[1].textContent = name2;
+      nameLabels[2].textContent = name3;
+    }
+
+    function startRace() {
+      const betHorse = parseInt(horseBet.value);
+      const bet = parseInt(betAmount.value);
+
+      if (bet > balance || bet < 1) {
+        alert("Invalid bet amount!");
+        return;
+      }
+
+      resetRace();
+      const intervals = [];
+      let winnerDeclared = false;
+
+      horses.forEach((horse, i) => {
+        let pos = 0;
+        const id = setInterval(() => {
+          const step = Math.random() * 10 + 1;
+          pos += step;
+          horse.style.left = `${pos}px`;
+          nameLabels[i].style.left = `${pos - 10}px`;
+
+          if (pos >= finishLine && !winnerDeclared) {
+            winnerDeclared = true;
+            const winner = i + 1;
+            const winnerName = nameLabels[i].textContent;
+            result.textContent = `🏆 ${winnerName} wins the race!`;
+
+            if (betHorse === winner) {
+              balance += bet;
+              result.textContent += " You WON your bet! WUBALUBA DUB DUB";
+            } else {
+              balance -= bet;
+              result.textContent += " You lost your bet. fucking gay ass hoe";
+            }
+
+            updateBalanceDisplay();
+            intervals.forEach(clearInterval);
+          }
+        }, 100);
+        intervals.push(id);
+      });
+    }
+
+    startBtn.addEventListener('click', startRace);
+    updateBalanceDisplay();
+  </script>
+
+</body>
+</html>
